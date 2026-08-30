@@ -130,18 +130,6 @@ same real agent chain with no scripted shortcuts.
    SQLite (backend/services/): Workflow / Event / Audit / Notification repositories
 ```
 
-> **A separate visual architecture diagram image is required for the
-> hackathon submission** (this ASCII sketch is not a substitute). It
-> should show: the three tiers above (dashboard → API/WebSocket →
-> event bus), the 10 agents as nodes fanning out from the event bus with
-> arrows labeled by the event type each one subscribes to (see "Event-driven
-> workflow" below for the exact list), the tool registry + mock government
-> API layer beneath the agents, the RAG knowledge base feeding
-> `RegulationAgent`/`EligibilityAgent`/`DocumentAgent`, and the SQLite
-> persistence layer with its four repositories. The human-in-the-loop gate
-> (`WorkflowEngine.block_step`/`block_workflow` ⇄ a `WORKFLOW_RESUMED`
-> event from the dashboard) is worth calling out explicitly, since it's
-> the feature most likely to need explaining to a judge.
 
 ## Agent responsibilities
 
