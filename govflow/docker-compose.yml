@@ -1,0 +1,41 @@
+version: "3.9"
+
+# LOCAL MODE ONLY. Both services run entirely in-process/in-container --
+# InProcessEventBus + SQLite for the backend, a static nginx build for the
+# frontend -- no Firestore/Pub/Sub emulators. See the README's "Google
+# Cloud deployment" section for CLOUD MODE (Cloud Run + real Firestore/
+# Pub/Sub), which is config-ready but NOT what this compose file runs.
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - EVENT_BUS_MODE=local
+      - PERSISTENCE_MODE=local
+      - PORT=8000
+      # ${VAR:-default} pulls from a root .env file or the shell
+      # environment if set (Compose reads .env for interpolation
+      # automatically -- no env_file: directive needed), and falls back
+      # to a safe default otherwise so `docker-compose up` never fails
+      # just because .env doesn't exist. Without a real GEMINI_API_KEY
+      # the backend still boots; LLM-backed agents raise LLMClientError
+      # if triggered.
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.5-flash}
+    volumes:
+      - ./backend/data:/app/backend/data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+        VITE_WS_BASE_URL: ws://localhost:8000
+    ports:
+      - "5173:8080"
+    depends_on:
+      - backend

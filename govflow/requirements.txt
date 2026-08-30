@@ -1,0 +1,36 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+httpx==0.28.1
+pytest==8.3.4
+pytest-asyncio==0.25.0
+python-dotenv==1.0.1
+
+# --- Part 2: LLM client ---
+# google-genai is the current unified Google GenAI SDK (`from google import
+# genai`), used for structured-output Gemini calls. NOT google-generativeai
+# (older, frozen at 0.8.x, effectively superseded) and NOT google-adk (a
+# full agent-orchestration framework -- unneeded here since Part 2 builds
+# its own event-driven orchestration on top of Part 1's event bus; pulling
+# in ADK's own agent loop on top of that would add redundant complexity
+# for no benefit, contrary to "reliability > complexity"). See
+# backend/agents/llm_client.py for details.
+google-genai==2.20.0
+
+# The RAG retriever (backend/rag/retriever.py) is a dependency-free
+# pure-Python TF-IDF implementation -- no sentence-transformers/sklearn
+# needed, so no additional requirement here.
+
+# --- Part 3: WebSocket support ---
+# `websockets` is what actually implements the WS protocol for both
+# FastAPI/Starlette's server-side WebSocket route (WS /ws/workflows/{id})
+# and TestClient's websocket_connect() in tests. Already pulled in
+# transitively by uvicorn[standard] above; pinned explicitly here so it
+# isn't a silent transitive dependency.
+websockets==16.1.1
+
+# --- Optional, needed only for cloud mode (Part 4) ---
+# google-cloud-firestore
+# google-cloud-pubsub
+# google-adk
