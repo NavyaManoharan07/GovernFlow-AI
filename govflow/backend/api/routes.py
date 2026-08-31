@@ -2,6 +2,7 @@
 
 Route list:
   GET  /health
+  GET  /api/dashboard/summary                   -- aggregate stats across all workflows
   POST /api/workflows                          -- create + kick off async agent chain
   GET  /api/workflows/{workflow_id}             -- current Workflow state
   POST /api/workflows/{workflow_id}/events      -- manually publish an event (resume gate)
@@ -41,15 +42,20 @@ from backend.api.rate_limit import enforce_rate_limit
 from backend.api.schemas import (
     ALLOWED_MANUAL_EVENT_TYPES,
     CreateWorkflowRequest,
+    DashboardSummaryResponse,
     ManualEventRequest,
+    RecentWorkflowSummary,
     WorkflowAcceptedResponse,
     WorkflowGraphResponse,
     WorkflowResumedPayload,
 )
 from backend.models.agent import AgentInfo
 from backend.models.audit import AuditLogEntry
+from backend.models.enums import WorkflowStatus
 from backend.models.event import Event
 from backend.models.workflow import Workflow, WorkflowStep
+
+RECENT_WORKFLOWS_LIMIT = 10
 
 logger = logging.getLogger("govflow.api.routes")
 
@@ -71,6 +77,48 @@ async def health(request: Request) -> dict:
         "event_bus_mode": os.environ.get("EVENT_BUS_MODE", "local"),
         "persistence_mode": os.environ.get("PERSISTENCE_MODE", "local"),
     }
+
+
+# ---------------------------------------------------------------------------
+# Dashboard
+# ---------------------------------------------------------------------------
+
+
+@router.get("/api/dashboard/summary", response_model=DashboardSummaryResponse)
+async def get_dashboard_summary(request: Request) -> DashboardSummaryResponse:
+    """Aggregate stats across every workflow, for the Dashboard landing
+    page. Everything here is computed fresh from persistence on every
+    call -- WorkflowRepository.list() (already existed, just never had a
+    route in front of it) and AuditRepository.count_all() (added
+    alongside this route) -- there is no cached/precomputed total
+    anywhere, so a workflow appearing or changing status shows up here on
+    the next request."""
+    workflow_repo = request.app.state.workflow_repo
+    audit_repo = request.app.state.audit_repo
+
+    workflows = workflow_repo.list()
+
+    by_status = {status.value: 0 for status in WorkflowStatus}
+    total_applications_submitted = 0
+    for workflow in workflows:
+        by_status[workflow.status.value] = by_status.get(workflow.status.value, 0) + 1
+        total_applications_submitted += len(workflow.applications)
+
+    most_recent = sorted(workflows, key=lambda w: w.updated_at, reverse=True)[:RECENT_WORKFLOWS_LIMIT]
+    recent_workflows = [
+        RecentWorkflowSummary(
+            workflow_id=w.workflow_id, goal=w.goal, status=w.status.value, updated_at=w.updated_at
+        )
+        for w in most_recent
+    ]
+
+    return DashboardSummaryResponse(
+        total_workflows=len(workflows),
+        by_status=by_status,
+        recent_workflows=recent_workflows,
+        total_applications_submitted=total_applications_submitted,
+        total_audit_entries=audit_repo.count_all(),
+    )
 
 
 # ---------------------------------------------------------------------------

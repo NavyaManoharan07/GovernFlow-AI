@@ -1,22 +1,14 @@
 import { useMemo } from 'react'
-import type { StepStatus, WorkflowStep } from '../types/api'
+import type { WorkflowStep } from '../types/api'
 import { EmptyState } from './EmptyState'
-import { StepStatusBadge } from './StatusBadge'
+import { STEP_STATUS_HEX, StepStatusBadge } from './StatusBadge'
+import { Card } from './ui/Card'
 
 const NODE_WIDTH = 190
 const NODE_HEIGHT = 60
 const COLUMN_GAP = 90
 const ROW_GAP = 32
 const PADDING = 24
-
-const STATUS_STROKE: Record<StepStatus, string> = {
-  COMPLETED: '#22c55e',
-  RUNNING: '#3b82f6',
-  WAITING: '#eab308',
-  BLOCKED: '#f97316',
-  FAILED: '#ef4444',
-  PENDING: '#4b5568',
-}
 
 interface LaidOutStep {
   step: WorkflowStep
@@ -84,7 +76,7 @@ export function WorkflowGraph({ steps, available }: { steps: WorkflowStep[]; ava
   const height = PADDING * 2 + maxRows * NODE_HEIGHT + (maxRows - 1) * ROW_GAP
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-[var(--gf-border)] bg-[var(--gf-surface)] p-4">
+    <Card padded className="overflow-x-auto">
       <svg width={width} height={Math.max(height, NODE_HEIGHT + PADDING * 2)} className="min-w-full">
         {/* Edges, drawn first so nodes sit on top */}
         {laidOut.map((node) =>
@@ -124,7 +116,7 @@ export function WorkflowGraph({ steps, available }: { steps: WorkflowStep[]; ava
                 height={NODE_HEIGHT}
                 rx={10}
                 fill="var(--gf-surface-raised)"
-                stroke={STATUS_STROKE[node.step.status]}
+                stroke={STEP_STATUS_HEX[node.step.status]}
                 strokeWidth={isRunningLike ? 2.5 : 1.5}
                 className={isRunningLike ? 'animate-pulse' : undefined}
               />
@@ -138,6 +130,6 @@ export function WorkflowGraph({ steps, available }: { steps: WorkflowStep[]; ava
           )
         })}
       </svg>
-    </div>
+    </Card>
   )
 }

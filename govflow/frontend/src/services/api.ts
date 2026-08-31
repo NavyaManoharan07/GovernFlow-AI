@@ -9,6 +9,7 @@ import type {
   ApiErrorBody,
   AuditLogEntry,
   CreateWorkflowRequest,
+  DashboardSummary,
   DemoScenario,
   ManualEventRequest,
   ServiceInfo,
@@ -65,6 +66,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export async function getHealth(): Promise<{ status: string; service: string }> {
   return request('/health')
+}
+
+export async function getDashboardSummary(): Promise<DashboardSummary> {
+  return request('/api/dashboard/summary')
 }
 
 export async function createWorkflow(body: CreateWorkflowRequest): Promise<WorkflowAcceptedResponse> {

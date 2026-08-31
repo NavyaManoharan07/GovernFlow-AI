@@ -3,6 +3,9 @@ import type { ApplicationRecord } from '../types/api'
 import type { WsEventPayload } from '../types/websocket'
 import { EmptyState } from './EmptyState'
 import { MockDataBadge } from './MockDataBadge'
+import { Card, CardHeaderBar } from './ui/Card'
+import { SectionLabel } from './ui/PageHeader'
+import { TABLE_BODY_DIVIDER, TABLE_HEAD_ROW, TABLE_TD, TABLE_TH } from './ui/table'
 
 const NEXT_ACTION: Record<string, string> = {
   SUBMITTED: 'Awaiting government review',
@@ -65,40 +68,38 @@ export function ApplicationTracker({
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-[var(--gf-border)] bg-[var(--gf-surface)]">
-      <div className="flex items-center justify-between border-b border-[var(--gf-border)] px-4 py-2.5">
-        <p className="text-xs font-medium uppercase tracking-wide text-[var(--gf-text-faint)]">
-          Applications ({applications.length})
-        </p>
-        <MockDataBadge />
-      </div>
+    <Card className="overflow-hidden">
+      <CardHeaderBar
+        left={<SectionLabel>Applications ({applications.length})</SectionLabel>}
+        right={<MockDataBadge />}
+      />
       <table className="w-full text-left text-sm">
         <thead>
-          <tr className="text-xs uppercase tracking-wide text-[var(--gf-text-faint)]">
-            <th className="px-4 py-2 font-medium">Application ID</th>
-            <th className="px-4 py-2 font-medium">Department</th>
-            <th className="px-4 py-2 font-medium">Status</th>
-            <th className="px-4 py-2 font-medium">Next action</th>
+          <tr className={TABLE_HEAD_ROW}>
+            <th className={TABLE_TH}>Application ID</th>
+            <th className={TABLE_TH}>Department</th>
+            <th className={TABLE_TH}>Status</th>
+            <th className={TABLE_TH}>Next action</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[var(--gf-border)]">
+        <tbody className={TABLE_BODY_DIVIDER}>
           {applications.map((app) => {
             const status = liveStatus.get(app.application_id) ?? app.status
             return (
               <tr key={app.application_id}>
-                <td className="px-4 py-2.5 font-mono text-xs text-[var(--gf-text-dim)]">
+                <td className={`${TABLE_TD} font-mono text-xs text-[var(--gf-text-dim)]`}>
                   {app.application_id.slice(0, 8)}…
                 </td>
-                <td className="px-4 py-2.5 text-[var(--gf-text)]">{app.department}</td>
-                <td className={`px-4 py-2.5 font-medium ${STATUS_COLOR[status] ?? 'text-[var(--gf-text-dim)]'}`}>
+                <td className={`${TABLE_TD} text-[var(--gf-text)]`}>{app.department}</td>
+                <td className={`${TABLE_TD} font-medium ${STATUS_COLOR[status] ?? 'text-[var(--gf-text-dim)]'}`}>
                   {status}
                 </td>
-                <td className="px-4 py-2.5 text-[var(--gf-text-dim)]">{NEXT_ACTION[status] ?? '—'}</td>
+                <td className={`${TABLE_TD} text-[var(--gf-text-dim)]`}>{NEXT_ACTION[status] ?? '—'}</td>
               </tr>
             )
           })}
         </tbody>
       </table>
-    </div>
+    </Card>
   )
 }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ApiError, resumeWorkflow } from '../services/api'
+import { Button } from './ui/Button'
 import type { WorkflowStatus } from '../types/api'
 import type { WsEventPayload } from '../types/websocket'
 
@@ -68,22 +69,23 @@ export function HumanInTheLoopBanner({
           ) : null}
 
           <div className="mt-3 flex gap-2">
-            <button
+            <Button
               type="button"
+              size="sm"
               onClick={() => void handleAction('retry')}
               disabled={submitting !== null}
-              className="rounded-md bg-[var(--gf-accent)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[var(--gf-accent-hover)] disabled:opacity-50"
             >
               {submitting === 'retry' ? 'Retrying…' : 'Retry step'}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              size="sm"
+              variant="ghost"
               onClick={() => void handleAction('abandon')}
               disabled={submitting !== null}
-              className="rounded-md border border-[var(--gf-border)] px-3 py-1.5 text-xs font-medium text-[var(--gf-text-dim)] transition-colors hover:bg-white/5 disabled:opacity-50"
             >
               {submitting === 'abandon' ? 'Abandoning…' : 'Abandon step'}
-            </button>
+            </Button>
           </div>
 
           {error ? <p className="mt-2 text-xs text-red-400">{error}</p> : null}

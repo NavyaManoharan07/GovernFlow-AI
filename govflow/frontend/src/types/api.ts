@@ -174,3 +174,22 @@ export interface ManualEventRequest {
 export interface ApiErrorBody {
   detail: string | Record<string, unknown>
 }
+
+/** GET /api/dashboard/summary -- backend/api/schemas.py: RecentWorkflowSummary */
+export interface RecentWorkflowSummary {
+  workflow_id: string
+  goal: string
+  status: WorkflowStatus
+  updated_at: string
+}
+
+/** GET /api/dashboard/summary -- backend/api/schemas.py: DashboardSummaryResponse.
+ * Every number is computed from real persisted data on every request --
+ * see backend/api/routes.py:get_dashboard_summary. */
+export interface DashboardSummary {
+  total_workflows: number
+  by_status: Partial<Record<WorkflowStatus, number>>
+  recent_workflows: RecentWorkflowSummary[]
+  total_applications_submitted: number
+  total_audit_entries: number
+}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ApplicationTracker } from '../components/ApplicationTracker'
 import { EmptyState } from '../components/EmptyState'
+import { PageHeader } from '../components/ui/PageHeader'
 import { useActiveWorkflow } from '../context/WorkflowContext'
 import { useWorkflowStream } from '../hooks/useWorkflowStream'
 import { getWorkflow } from '../services/api'
@@ -34,12 +35,10 @@ export function ApplicationsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-[var(--gf-text)]">Application Tracker</h1>
-        <p className="mt-1 text-sm text-[var(--gf-text-dim)]">
-          Every application submitted to a mock government service, with live status.
-        </p>
-      </div>
+      <PageHeader
+        title="Application Tracker"
+        subtitle="Every application submitted to a mock government service, with live status."
+      />
 
       {!activeWorkflowId ? (
         <EmptyState

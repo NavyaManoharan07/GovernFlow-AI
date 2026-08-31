@@ -1,5 +1,6 @@
 import { AgentRegistryTable } from '../components/AgentRegistryTable'
 import { ErrorState, LoadingState } from '../components/EmptyState'
+import { PageHeader } from '../components/ui/PageHeader'
 import { useActiveWorkflow } from '../context/WorkflowContext'
 import { useAgents } from '../hooks/useAgents'
 import { useWorkflowStream } from '../hooks/useWorkflowStream'
@@ -15,16 +16,17 @@ export function AgentRegistryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-[var(--gf-text)]">Agent Registry</h1>
-        <p className="mt-1 text-sm text-[var(--gf-text-dim)]">
-          Live status for all agents, from GET /api/agents — updates as they actually run.
-        </p>
-      </div>
+      <PageHeader
+        title="Agent Registry"
+        subtitle="Live status for all agents, from GET /api/agents — updates as they actually run."
+      />
 
       {error ? <ErrorState message={error} /> : null}
-      {loading && agents.length === 0 ? <LoadingState label="Loading agents…" /> : null}
-      {agents.length > 0 ? <AgentRegistryTable agents={agents} /> : null}
+      {loading && agents.length === 0 ? (
+        <LoadingState label="Loading agents…" />
+      ) : error ? null : (
+        <AgentRegistryTable agents={agents} />
+      )}
     </div>
   )
 }

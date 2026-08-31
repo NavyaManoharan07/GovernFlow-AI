@@ -46,6 +46,14 @@ class AuditRepository(abc.ABC):
     @abc.abstractmethod
     def list_for_workflow(self, workflow_id: str) -> List[AuditLogEntry]: ...
 
+    @abc.abstractmethod
+    def count_all(self) -> int:
+        """Total audit entries across every workflow. Added for the
+        dashboard summary endpoint -- a plain COUNT(*), not a
+        list_for_workflow(...) fan-out, so it stays cheap regardless of
+        how many workflows/entries exist."""
+        ...
+
 
 class NotificationRepository(abc.ABC):
     """Added in Part 2 so NotificationAgent has somewhere real to persist to."""

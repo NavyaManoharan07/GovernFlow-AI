@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AuditTrailTable } from '../components/AuditTrailTable'
 import { EmptyState } from '../components/EmptyState'
+import { PageHeader } from '../components/ui/PageHeader'
 import { useActiveWorkflow } from '../context/WorkflowContext'
 import { useWorkflowStream } from '../hooks/useWorkflowStream'
 import { getWorkflowAudit } from '../services/api'
@@ -37,12 +38,10 @@ export function AuditPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-[var(--gf-text)]">Audit Trail</h1>
-        <p className="mt-1 text-sm text-[var(--gf-text-dim)]">
-          Every decision, tool call, and state transition — the full accountability record.
-        </p>
-      </div>
+      <PageHeader
+        title="Audit Trail"
+        subtitle="Every decision, tool call, and state transition — the full accountability record."
+      />
 
       {!activeWorkflowId ? (
         <EmptyState

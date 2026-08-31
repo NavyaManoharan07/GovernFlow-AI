@@ -8,6 +8,7 @@ the backend actually persists.
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
@@ -89,3 +90,31 @@ class WorkflowGraphResponse(BaseModel):
     workflow_id: str
     available: bool
     steps: List[WorkflowStep] = Field(default_factory=list)
+
+
+class RecentWorkflowSummary(BaseModel):
+    """One row of GET /api/dashboard/summary's recent_workflows list --
+    intentionally a small subset of Workflow's fields (just enough for a
+    dashboard row + click-through), not the full object."""
+
+    workflow_id: str
+    goal: str
+    status: str
+    updated_at: datetime
+
+
+class DashboardSummaryResponse(BaseModel):
+    """GET /api/dashboard/summary.
+
+    Every number here is computed from real persisted data at request
+    time via WorkflowRepository.list() / AuditRepository.count_all() --
+    see backend/api/routes.py:get_dashboard_summary. Nothing is cached or
+    invented; a fresh workflow shows up here the moment
+    WorkflowPlannerAgent persists its row.
+    """
+
+    total_workflows: int
+    by_status: Dict[str, int]
+    recent_workflows: List[RecentWorkflowSummary] = Field(default_factory=list)
+    total_applications_submitted: int
+    total_audit_entries: int

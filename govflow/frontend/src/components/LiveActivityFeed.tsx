@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
 import type { WsAgentActivityPayload } from '../types/websocket'
 import { EmptyState } from './EmptyState'
+import { AgentTag } from './ui/AgentTag'
+import { Card } from './ui/Card'
 
 function formatTime(iso: string): string {
   try {
@@ -42,23 +44,20 @@ export function LiveActivityFeed({ activity }: { activity: WsAgentActivityPayloa
   }
 
   return (
-    <div
-      ref={scrollRef}
-      className="max-h-96 overflow-y-auto rounded-lg border border-[var(--gf-border)] bg-[var(--gf-surface)]"
-    >
+    <Card ref={scrollRef} className="max-h-96 overflow-y-auto">
       <ul className="divide-y divide-[var(--gf-border)]">
         {activity.map((entry, index) => (
           <li key={`${entry.timestamp}-${index}`} className="flex items-start gap-3 px-4 py-2.5 text-sm">
             <span className="mt-0.5 shrink-0 font-mono text-[11px] text-[var(--gf-text-faint)]">
               {formatTime(entry.timestamp)}
             </span>
-            <span className="shrink-0 rounded bg-[var(--gf-accent)]/15 px-1.5 py-0.5 text-[11px] font-medium text-[var(--gf-accent)]">
-              {entry.agent}
+            <span className="shrink-0">
+              <AgentTag>{entry.agent}</AgentTag>
             </span>
             <span className="text-[var(--gf-text-dim)]">{describeAction(entry.action)}</span>
           </li>
         ))}
       </ul>
-    </div>
+    </Card>
   )
 }

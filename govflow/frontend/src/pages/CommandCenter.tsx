@@ -3,6 +3,10 @@ import { LiveActivityFeed } from '../components/LiveActivityFeed'
 import { HumanInTheLoopBanner } from '../components/HumanInTheLoopBanner'
 import { MockDataBadge } from '../components/MockDataBadge'
 import { WorkflowStatusBadge } from '../components/StatusBadge'
+import { Button } from '../components/ui/Button'
+import { Card, cardClassName } from '../components/ui/Card'
+import { ErrorState } from '../components/EmptyState'
+import { PageHeader, SectionLabel } from '../components/ui/PageHeader'
 import { useActiveWorkflow } from '../context/WorkflowContext'
 import { useLatestEventPayload, useWorkflowStream } from '../hooks/useWorkflowStream'
 import { ApiError, createWorkflow, runDemo } from '../services/api'
@@ -62,20 +66,12 @@ export function CommandCenter() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-[var(--gf-text)]">Command Center</h1>
-        <p className="mt-1 text-sm text-[var(--gf-text-dim)]">
-          Give GovFlow AI a goal, or run the deterministic judging demo.
-        </p>
-      </div>
+      <PageHeader title="Command Center" subtitle="Give GovFlow AI a goal, or run the deterministic judging demo." />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <form
-          onSubmit={handleSubmitGoal}
-          className="flex flex-col gap-3 rounded-lg border border-[var(--gf-border)] bg-[var(--gf-surface)] p-4"
-        >
-          <label htmlFor="goal" className="text-xs font-medium uppercase tracking-wide text-[var(--gf-text-faint)]">
-            Describe your goal
+        <form onSubmit={handleSubmitGoal} className={cardClassName(true, 'flex flex-col gap-3')}>
+          <label htmlFor="goal">
+            <SectionLabel>Describe your goal</SectionLabel>
           </label>
           <textarea
             id="goal"
@@ -85,20 +81,14 @@ export function CommandCenter() {
             rows={3}
             className="resize-none rounded-md border border-[var(--gf-border)] bg-[var(--gf-bg)] px-3 py-2 text-sm text-[var(--gf-text)] outline-none focus:border-[var(--gf-accent)]"
           />
-          <button
-            type="submit"
-            disabled={submitting !== null || !goal.trim()}
-            className="self-start rounded-md bg-[var(--gf-accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--gf-accent-hover)] disabled:opacity-50"
-          >
+          <Button type="submit" disabled={submitting !== null || !goal.trim()} className="self-start">
             {submitting === 'goal' ? 'Starting…' : 'Start workflow'}
-          </button>
+          </Button>
         </form>
 
-        <div className="flex flex-col gap-3 rounded-lg border border-[var(--gf-border)] bg-[var(--gf-surface)] p-4">
+        <Card padded className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--gf-text-faint)]">
-              One-click demo (judging flow)
-            </p>
+            <SectionLabel>One-click demo (judging flow)</SectionLabel>
             <MockDataBadge />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -118,31 +108,20 @@ export function CommandCenter() {
               </label>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={() => void handleRunDemo()}
-            disabled={submitting !== null}
-            className="self-start rounded-md border border-[var(--gf-accent)] px-4 py-2 text-sm font-medium text-[var(--gf-accent)] transition-colors hover:bg-[var(--gf-accent)]/10 disabled:opacity-50"
-          >
+          <Button variant="outline" onClick={() => void handleRunDemo()} disabled={submitting !== null} className="self-start">
             {submitting === 'demo' ? 'Starting demo…' : '▶ Run Demo'}
-          </button>
-        </div>
+          </Button>
+        </Card>
       </div>
 
-      {error ? (
-        <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-          {error}
-        </div>
-      ) : null}
+      {error ? <ErrorState message={error} /> : null}
 
       {activeWorkflowId ? (
         <div className="flex flex-col gap-4">
-          <div className="rounded-lg border border-[var(--gf-border)] bg-[var(--gf-surface)] p-4">
+          <Card padded>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-[var(--gf-text-faint)]">
-                  Interpreted goal
-                </p>
+                <SectionLabel>Interpreted goal</SectionLabel>
                 <p className="mt-1 text-sm text-[var(--gf-text)]">
                   {typeof goalAnalyzed?.goal === 'string'
                     ? goalAnalyzed.goal
@@ -170,14 +149,14 @@ export function CommandCenter() {
                 />
               </div>
             ) : null}
-          </div>
+          </Card>
 
           <HumanInTheLoopBanner status={stream.status} workflowId={activeWorkflowId} events={stream.events} />
 
           <div>
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--gf-text-faint)]">
-              Live activity
-            </p>
+            <div className="mb-2">
+              <SectionLabel>Live activity</SectionLabel>
+            </div>
             <LiveActivityFeed activity={stream.agentActivity} />
           </div>
         </div>

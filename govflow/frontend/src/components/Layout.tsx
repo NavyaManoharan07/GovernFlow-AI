@@ -3,7 +3,8 @@ import { NavLink } from 'react-router-dom'
 import { useActiveWorkflow } from '../context/WorkflowContext'
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Command Center', icon: '⌂' },
+  { to: '/', label: 'Dashboard', icon: '▦' },
+  { to: '/command-center', label: 'Command Center', icon: '⌂' },
   { to: '/graph', label: 'Workflow Graph', icon: '⌗' },
   { to: '/agents', label: 'Agent Registry', icon: '◈' },
   { to: '/applications', label: 'Application Tracker', icon: '▤' },

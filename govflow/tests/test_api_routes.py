@@ -53,6 +53,77 @@ def test_health(api_client):
 
 
 # ---------------------------------------------------------------------------
+# GET /api/dashboard/summary
+# ---------------------------------------------------------------------------
+
+
+def test_dashboard_summary_empty_state(api_client):
+    r = api_client.client.get("/api/dashboard/summary")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total_workflows"] == 0
+    assert body["by_status"] == {
+        "RUNNING": 0,
+        "WAITING_FOR_USER": 0,
+        "BLOCKED": 0,
+        "COMPLETED": 0,
+        "FAILED": 0,
+    }
+    assert body["recent_workflows"] == []
+    assert body["total_applications_submitted"] == 0
+    assert body["total_audit_entries"] == 0
+
+
+def test_dashboard_summary_reflects_real_completed_workflow(api_client):
+    _configure_happy_path(api_client.stub)
+    r = api_client.client.post("/api/workflows", json={"user_id": "u1", "goal": GOAL})
+    workflow_id = r.json()["workflow_id"]
+    workflow = _wait_for_workflow(api_client.client, workflow_id)
+    assert workflow["status"] == "COMPLETED"
+
+    r = api_client.client.get("/api/dashboard/summary")
+    assert r.status_code == 200
+    body = r.json()
+
+    assert body["total_workflows"] == 1
+    assert body["by_status"]["COMPLETED"] == 1
+    assert sum(body["by_status"].values()) == 1
+    assert body["total_applications_submitted"] == len(workflow["applications"])
+    assert body["total_applications_submitted"] > 0
+    assert body["total_audit_entries"] > 0
+
+    assert len(body["recent_workflows"]) == 1
+    recent = body["recent_workflows"][0]
+    assert recent["workflow_id"] == workflow_id
+    assert recent["goal"] == GOAL
+    assert recent["status"] == "COMPLETED"
+
+
+def test_dashboard_summary_recent_workflows_most_recent_first_and_capped(api_client):
+    _configure_happy_path(api_client.stub)
+    workflow_ids = []
+    for _ in range(3):
+        r = api_client.client.post("/api/workflows", json={"user_id": "u1", "goal": GOAL})
+        workflow_id = r.json()["workflow_id"]
+        _wait_for_workflow(api_client.client, workflow_id)
+        workflow_ids.append(workflow_id)
+        # Re-arm the stub for the next run -- StubGeminiClient's canned
+        # responses are consumed per generate_structured call, but
+        # set_response overwrites rather than queues, so this is only
+        # needed if a test wants per-call variation. Here it's the same
+        # canned response every time, which is fine.
+        _configure_happy_path(api_client.stub)
+
+    r = api_client.client.get("/api/dashboard/summary")
+    body = r.json()
+    assert body["total_workflows"] == 3
+    assert body["by_status"]["COMPLETED"] == 3
+    # Most recent (last created) workflow should be first.
+    assert body["recent_workflows"][0]["workflow_id"] == workflow_ids[-1]
+    assert len(body["recent_workflows"]) <= 10
+
+
+# ---------------------------------------------------------------------------
 # POST /api/workflows, GET /api/workflows/{id}
 # ---------------------------------------------------------------------------
 

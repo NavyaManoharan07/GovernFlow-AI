@@ -5,6 +5,7 @@ import { AgentRegistryPage } from './pages/AgentRegistryPage'
 import { ApplicationsPage } from './pages/ApplicationsPage'
 import { AuditPage } from './pages/AuditPage'
 import { CommandCenter } from './pages/CommandCenter'
+import { DashboardPage } from './pages/DashboardPage'
 import { WorkflowGraphPage } from './pages/WorkflowGraphPage'
 
 export default function App() {
@@ -12,7 +13,8 @@ export default function App() {
     <WorkflowProvider>
       <Layout>
         <Routes>
-          <Route path="/" element={<CommandCenter />} />
+          <Route path="/" element={<DashboardPage />} />
+          <Route path="/command-center" element={<CommandCenter />} />
           <Route path="/graph" element={<WorkflowGraphPage />} />
           <Route path="/agents" element={<AgentRegistryPage />} />
           <Route path="/applications" element={<ApplicationsPage />} />

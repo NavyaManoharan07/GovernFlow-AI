@@ -66,6 +66,9 @@ class FirestoreAuditRepository(AuditRepository):
     def list_for_workflow(self, workflow_id: str) -> List[AuditLogEntry]:
         raise NotImplementedError(_NOT_IMPLEMENTED_MSG.format(cls=type(self).__name__))
 
+    def count_all(self) -> int:
+        raise NotImplementedError(_NOT_IMPLEMENTED_MSG.format(cls=type(self).__name__))
+
 
 class FirestoreNotificationRepository(NotificationRepository):
     def __init__(self) -> None:

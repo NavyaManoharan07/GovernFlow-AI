@@ -126,6 +126,11 @@ class SQLiteAuditRepository(AuditRepository):
         ).fetchall()
         return [AuditLogEntry.model_validate_json(row["data"]) for row in rows]
 
+    def count_all(self) -> int:
+        conn = self._get_conn()
+        row = conn.execute("SELECT COUNT(*) AS n FROM audit_log").fetchone()
+        return int(row["n"])
+
 
 class SQLiteNotificationRepository(NotificationRepository):
     def __init__(self, conn: Optional[sqlite3.Connection] = None) -> None:
